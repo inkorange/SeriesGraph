@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Graphing Example</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/graph.css">
+    </head>
+    <body>
+
+		<section class="chart-holder">
+			<svg class="chart" version="1.1" >
+			</svg>
+		</section>
+
+
+
+		<script src="js/jquery-1.10.2.min.js"></script>
+		<script src="js/chart.js"></script>
+		<script>
+			var dataSet = [
+				{
+					key: '2014-04-29',
+					value: 0
+				},
+				{
+					key: '2014-04-30',
+					value: 1
+				},
+				{
+					key: '2014-05-01',
+				  	value: 5
+				},
+				{
+					key: '2014-05-02',
+					value: 4
+				},
+				{
+					key: '2014-05-03',
+					value: 9
+				},
+				{
+					key: '2014-05-04',
+					value: 14
+				},
+				{
+					key: '2014-05-05',
+					value: 18
+				},
+				{
+					key: '2014-05-06',
+					value: 20
+				},
+				{
+					key: '2014-05-07',
+					value: 25
+				},
+				{
+					key: '2014-05-08',
+					value: 21
+				},
+				{
+					key: '2014-05-09',
+					value: 22
+				},
+				{
+					key: '2014-05-10',
+					value: 10
+				},
+				{
+					key: '2014-05-11',
+					value: 20
+				},
+				{
+					key: '2014-05-12',
+					value: 25
+				},
+				{
+					key: '2014-05-13',
+					value: 16
+				}
+
+			];
+
+			var dataSet2 = [
+				{
+					key: '2014-05-01',
+					value: 3
+				},
+				{
+					key: '2014-05-02',
+					value: 7
+				},
+				{
+					key: '2014-05-03',
+					value: 3
+				},
+				{
+					key: '2014-05-04',
+					value: 8
+				},
+				{
+					key: '2014-05-05',
+					value: 6
+				},
+				{
+					key: '2014-05-06',
+					value: 5
+				},
+				{
+					key: '2014-05-07',
+					value: 4
+				}
+			];
+
+			var dataSet3 = [
+				{
+					key: '2014-05-01',
+					value: 20
+				},
+				{
+					key: '2014-05-02',
+					value: 24
+				},
+				{
+					key: '2014-05-03',
+					value: 22
+				},
+				{
+					key: '2014-05-04',
+					value: 18
+				}
+			];
+
+			var $chartHolder = $('.chart-holder');
+			var $svg = $('.chart');
+			var zeroFunc = function() { return 0; }
+			var sameFunc = function(v) { return v; }
+
+			/*
+				defining the series to be plotted
+			 */
+			var series = new Series({
+				data: dataSet,
+				type: 'line',
+				className: 'series1',
+				axis: {
+					position: 'left',
+					unique: true,
+					line_count: 10,
+					start: zeroFunc,
+					end: sameFunc
+				}
+			});
+			var series2 = new Series({
+				data: dataSet2,
+				type: 'line',
+				className: 'series2',
+				axis: {
+					position: 'left',
+					unique: true,
+					line_count: 10,
+					start: zeroFunc,
+					end: sameFunc
+				}
+			});
+			var series3 = new Series({
+				data: dataSet3,
+				type: 'line',
+				className: 'series3'
+			});
+
+			/*
+				Defining the Chart to render as well as the series.
+			 */
+			var chart = new Chart({
+				series : [series, series2], //, series3],
+				$container : $('.chart-holder'),
+				labelSpacing : {
+					top: 10,
+					right: 50,
+					bottom: 20,
+					left: 100
+				}
+			});
+
+			$(window).on('resize', chart.rePaint);
+
+			$svg.html(chart.get$Root());
+
+			//$chartHolder.append(chart.get$Root());
+		</script>
+
+	</body>
+</html>

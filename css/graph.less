@@ -1,0 +1,117 @@
+body {
+	background: #aaaaaa;
+}
+.chart-holder {
+	width: 80%;
+	height: 300px;
+	background: white;
+	padding: 20px;
+	margin: 5% auto;
+	position: relative;
+	vertical-align: middle;
+}
+
+//SVG Personalization
+
+svg {
+	//background: #ebebeb;
+	.series {
+
+		> g path {
+			stroke-width: 2px;
+		}
+
+		.series1 {
+			stroke: rgba(0,0,256,.8);
+		}
+		.series1-fill {
+			fill: rgba(0,0,256,.15);
+		}
+		.series2 {
+			stroke: rgba(0,256,0,.8);
+		}
+		.series2-fill {
+			fill: rgba(0,256,0,.15);
+		}
+		.series3 {
+			stroke: rgba(256,50,0,.8);
+		}
+		.series3-fill {
+			fill: rgba(256,50,0,.15);
+		}
+	}
+
+	.axis {
+		text {
+			fill: #aaa;
+			font-size: 12px;
+		}
+	}
+}
+/*
+font-family
+font-size
+font-style
+font-weight
+fill
+fill-rule
+stroke
+stroke-linecap
+stroke-linejoin
+stroke-dasharray
+stroke-dashoffset
+stroke-width
+text-anchor
+*/
+
+svg {
+
+	.chart-axis-line {
+		stroke: black;
+		stroke-width: 1px;
+		fill: transparent;
+	}
+	.series {
+		.series-group {
+			path:first-of-type {
+				stroke: none;
+			}
+
+		}
+		g[class*="-circle"] {
+			stroke: rgba(0,0,0,.75);
+			stroke-width: 1px;
+			fill: transparent;
+			transition: all .5s;
+			z-index: 1000;
+			&:hover {
+				stroke-width: 4px;
+			}
+		}
+		path[class*="-fill"] {
+			stroke: none;
+			pointer-events:none;
+		}
+
+		path {
+			//stroke: #ccc;
+			stroke-width: 1px;
+			//fill: transparent;
+
+			&.warning {
+				//stroke: red;
+			}
+			&.cool {
+				//stroke: green;
+			}
+		}
+	}
+
+	.axis {
+		path {
+			stroke: rgba(0,0,0,.5);
+			stroke-width: 1px;
+		}
+	}
+
+}
