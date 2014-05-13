@@ -2,6 +2,17 @@ var Series;
 var Graph;
 var Axis;
 
+/*
+ Graph
+
+ Graph ingests a collection of Series objects, each to be rendered on the graph composition.
+
+ series: Array of Series objects, the order of this array actually reflects the layering priority of the line or bar graphs
+ $container: jQuery object that represents the svg container. This allows for better page responsiveness, as the sibling svg object will respond to it's size.
+ labelSpacing: Properties top, right, bottom, and left which represent the margins given to the graph, mainly room for axis and titles.
+ TODO: Would be nice to have the needed space auto calculated.
+ rePaintOnResize: boolean that enables a resize listener on the window and reDraws the graph on resize
+ */
 (function($) {
 	Graph = function(config) {
 
@@ -25,14 +36,14 @@ var Axis;
 		var _height = 100;
 		var _chartHeight = _height;
 		var _chartWidth = _width;
-
+		var _plotSpacing = 8; // could be configured eventually
 
 		var _init = function() {
 			$.extend(_config, config);
 			_calcCurrentSizing();
 			_instantiateChart();
 			if(_config.rePaintOnResize) {
-				$(window).on('resize', _rePaint());
+				$(window).on('resize', _rePaint);
 			}
 		};
 
@@ -52,16 +63,15 @@ var Axis;
 			var yTop = series.getUpperLimit();
 			var yBottom = 0;
 			var yRatio = _chartHeight/(yTop - yBottom); // 270/20
-			var spacing = 4;
 			var y = _chartHeight;
-			var x = spacing/2;
+			var x = _plotSpacing/2;
 			var barwidth = _chartWidth / (seriesData.length);
 
 			fillPathDirective = "M" + x + " " + y + ", L";
 
 			seriesData.forEach(function(data) {
 				y = _chartHeight - (yRatio * data.value);
-				var $bar = $('<rect x="'+ x + '" y="'+ y +'" width="'+ (barwidth - spacing) +'" height="'+ (_chartHeight - y - 1) +'" />');
+				var $bar = $('<rect x="'+ x + '" y="'+ y +'" width="'+ (barwidth - _plotSpacing) +'" height="'+ (_chartHeight - y) +'" />');
 				x = x + barwidth;
 				$seriesGroup.append($bar);
 				pos++;
@@ -87,17 +97,16 @@ var Axis;
 			//console.log("----- ", yRatio, _chartHeight, yTop, yBottom);
 
 			var xLength = seriesData.length;
-			var xRatio = _chartWidth/(xLength - 1);
+			var xRatio = (_chartWidth ) /(xLength - 1);
 
 			var y = _chartHeight;
-			var x = 0;
+			var x = _plotSpacing;
 
 			fillPathDirective = "M" + x + " " + y + ", L";
 
 			seriesData.forEach(function(data) {
 				var starty = y;
 				var startx = x;
-
 				// path calculations
 				y = _chartHeight - (yRatio * data.value);
 				x = ((pos-1) * xRatio);
@@ -184,9 +193,7 @@ var Axis;
 
 		};
 		var _instantiateChart = function() {
-			//$root.attr('viewBox', '0 0 100 100'); // this will make percentages easier
 			$chartArea.attr('transform', 'translate('+_config.labelSpacing.left+','+_config.labelSpacing.top+')');
-
 			_config.series.forEach(function(series) {
 				if(series.getType() === 'line') {
 					_renderLineChartSeries(series);
@@ -195,9 +202,7 @@ var Axis;
 					_renderBarChartSeries(series);
 				}
 			});
-
 			$root.append($chartArea);
-
 			var chartBoxPath = $('<rect class="chart-axis-line" x="' + _config.labelSpacing.left + '" y="' + _config.labelSpacing.top+'" width="' + _chartWidth + '" height="' +_chartHeight + '"></rect>');
 			$root.prepend(chartBoxPath);
 		};
@@ -205,8 +210,6 @@ var Axis;
 		var _get$Root = function() {
 			return $root.html();
 		};
-
-
 
 		_init();
 
@@ -221,7 +224,19 @@ var Axis;
 
 
 
+/*
+ Series
 
+ The Series object defines the data set and the axis that will represent it once plotted to the graph.
+ It also allows you to configure the type of graph, and classes for further styling.
+
+ data: The series needs the dataSet defined, there is 1:1 relationship of data to series.
+ type: The Series object defines the type of chart that will be rendered (line | bar)
+ className: when rendered, this classname is applied to the SVG objects, for styling later.
+ axis: the config sent to the axis class instantiation which is married to the Series object.
+ TODO: instantiate this outside of the Series declaration, and just pass in the Axis object
+ TODO: Eventually, if no axis config is passed through, an axis wont render at all, right now that doesnt work.
+ */
 (function($) {
 	Series = function(config) {
 
@@ -288,7 +303,16 @@ var Axis;
 
 
 
+/*
+	Axis
 
+	Object that manages the axis. This object is directly related to the Series that instantiates it.
+	position: left | right | top | bottom, currently only left works. Its possible to include several axis on the graph
+	unique: will determine if this axis should be rendered separately from other axises.
+	line_count: the number of ticks that will display on the chart.
+	start: a Function that will accept the highest data value and transform it
+	end: a Function that will accept the lowest data value and transform it
+ */
 (function($) {
 	Axis = function(config) {
 

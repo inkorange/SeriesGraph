@@ -87,8 +87,8 @@ text-anchor
 svg {
 
 	.chart-axis-line {
-		stroke: black;
-		stroke-width: 1px;
+		//stroke: black;
+		//stroke-width: 1px;
 		fill: transparent;
 	}
 	.series {
@@ -98,9 +98,9 @@ svg {
 			}
 			&.bar {
 				rect {
-					stroke-width: 0px;
-					stroke: transparent;
-					fill: url(#MyGradient);
+					stroke-width: 1px;
+					stroke: rgba(50,50,50,.5);
+					fill: rgba(200,200,200,.65);
 				}
 			}
 			&.line {
@@ -113,11 +113,11 @@ svg {
 						stroke: green;
 					}
 				}
-				path[class*="-fill"] {
-					stroke: none;
-					pointer-events:none;
-				}
 			}
+		}
+		path[class*="-fill"] {
+			stroke: none;
+			pointer-events:none;
 		}
 
 		g[class*="-circle"] {

@@ -68,17 +68,15 @@ stroke-width
 text-anchor
 */
 svg .chart-axis-line {
-  stroke: black;
-  stroke-width: 1px;
   fill: transparent;
 }
 svg .series .series-group path:first-of-type {
   stroke: none;
 }
 svg .series .series-group.bar rect {
-  stroke-width: 0px;
-  stroke: transparent;
-  fill: url(#MyGradient);
+  stroke-width: 1px;
+  stroke: rgba(50, 50, 50, 0.5);
+  fill: rgba(200, 200, 200, 0.65);
 }
 svg .series .series-group.line path {
   stroke-width: 1px;
@@ -89,7 +87,7 @@ svg .series .series-group.line path.warning {
 svg .series .series-group.line path.cool {
   stroke: green;
 }
-svg .series .series-group.line path[class*="-fill"] {
+svg .series path[class*="-fill"] {
   stroke: none;
   pointer-events: none;
 }
