@@ -3,15 +3,15 @@ var Graph;
 var Axis;
 
 /*
- Graph
+	Graph
 
- Graph ingests a collection of Series objects, each to be rendered on the graph composition.
+	Graph ingests a collection of Series objects, each to be rendered on the graph composition.
 
- series: Array of Series objects, the order of this array actually reflects the layering priority of the line or bar graphs
- $container: jQuery object that represents the svg container. This allows for better page responsiveness, as the sibling svg object will respond to it's size.
- labelSpacing: Properties top, right, bottom, and left which represent the margins given to the graph, mainly room for axis and titles.
- TODO: Would be nice to have the needed space auto calculated.
- rePaintOnResize: boolean that enables a resize listener on the window and reDraws the graph on resize
+	series: Array of Series objects, the order of this array actually reflects the layering priority of the line or bar graphs
+	$container: jQuery object that represents the svg container. This allows for better page responsiveness, as the sibling svg object will respond to it's size.
+	labelSpacing: Properties top, right, bottom, and left which represent the margins given to the graph, mainly room for axis and titles.
+	TODO: Would be nice to have the needed space auto calculated.
+	rePaintOnResize: boolean that enables a resize listener on the window and reDraws the graph on resize
  */
 (function($) {
 	Graph = function(config) {
@@ -47,6 +47,9 @@ var Axis;
 			}
 		};
 
+		/*
+			based on that container config, it will size the SVG objects to fit.
+		 */
 		var _calcCurrentSizing = function () {
 			_width = _config.$container.width();
 			_height = _config.$container.height();
@@ -55,6 +58,9 @@ var Axis;
 			_chartWidth = _width - _config.labelSpacing.left - _config.labelSpacing.right;
 		};
 
+		/*
+			renders the data out to bar charts
+		 */
 		var _renderBarChartSeries = function(series) {
 			var seriesData = series.getData();
 			var pos = 1;
@@ -81,6 +87,9 @@ var Axis;
 			$chartArea.append($seriesGroup);
 		};
 
+		/*
+		 renders the data out to line charts
+		 */
 		var _renderLineChartSeries = function(series) {
 			var seriesData = series.getData();
 			var pos = 1;
@@ -173,6 +182,9 @@ var Axis;
 			}
 		};
 
+		/*
+			Do we already have a left axis? yes, well you better handle the state for the next one so they are not plotted on top of each other.
+		 */
 		var alreadyPlottedAxisPosition = function(pos) {
 			var hasIt = false;
 			_axisArray.forEach(function(ax) {
@@ -182,6 +194,11 @@ var Axis;
 			});
 			return hasIt;
 		};
+
+		/*
+			Destroys and size calculates then re-draws the graph to the new container width/height
+			TODO: This has to be much cleaner and effective, we are re-building DOM elements that don't need to be built .. IE: Axis
+		 */
 		var _rePaint = function() {
 			_config.$container.find('.chart').empty();
 			$root.empty();
@@ -192,6 +209,10 @@ var Axis;
 			_config.$container.find('.chart').html(_get$Root);
 
 		};
+
+		/*
+			Iterates through the colleciton of Series objects and renders them based on plot
+		 */
 		var _instantiateChart = function() {
 			$chartArea.attr('transform', 'translate('+_config.labelSpacing.left+','+_config.labelSpacing.top+')');
 			_config.series.forEach(function(series) {
@@ -208,14 +229,15 @@ var Axis;
 		};
 
 		var _get$Root = function() {
+			// note that we return the inner HTML, since we already have a svg container.
 			return $root.html();
 		};
 
 		_init();
 
+		// public methods
 		this.get$Root = _get$Root;
 		this.rePaint = _rePaint;
-
 	};
 
 	return Graph;
@@ -225,17 +247,17 @@ var Axis;
 
 
 /*
- Series
+	Series
 
- The Series object defines the data set and the axis that will represent it once plotted to the graph.
- It also allows you to configure the type of graph, and classes for further styling.
+	The Series object defines the data set and the axis that will represent it once plotted to the graph.
+	It also allows you to configure the type of graph, and classes for further styling.
 
- data: The series needs the dataSet defined, there is 1:1 relationship of data to series.
- type: The Series object defines the type of chart that will be rendered (line | bar)
- className: when rendered, this classname is applied to the SVG objects, for styling later.
- axis: the config sent to the axis class instantiation which is married to the Series object.
- TODO: instantiate this outside of the Series declaration, and just pass in the Axis object
- TODO: Eventually, if no axis config is passed through, an axis wont render at all, right now that doesnt work.
+	data: The series needs the dataSet defined, there is 1:1 relationship of data to series.
+	type: The Series object defines the type of chart that will be rendered (line | bar)
+	className: when rendered, this classname is applied to the SVG objects, for styling later.
+	axis: the config sent to the axis class instantiation which is married to the Series object.
+	TODO: instantiate this outside of the Series declaration, and just pass in the Axis object
+	TODO: Eventually, if no axis config is passed through, an axis wont render at all, right now that doesnt work.
  */
 (function($) {
 	Series = function(config) {
@@ -288,13 +310,13 @@ var Axis;
 		};
 		_init();
 
+		// public methods
 		this.getType = _getType;
 		this.getData = _getData;
 		this.getClassName = _getClassName;
 		this.getAxis = _getAxis;
 		this.getUpperLimit = _getUpperLimit;
 		this.getLowerLimit = _getLowerLimit;
-
 	};
 
 	return Series;
@@ -307,6 +329,7 @@ var Axis;
 	Axis
 
 	Object that manages the axis. This object is directly related to the Series that instantiates it.
+
 	position: left | right | top | bottom, currently only left works. Its possible to include several axis on the graph
 	unique: will determine if this axis should be rendered separately from other axises.
 	line_count: the number of ticks that will display on the chart.
@@ -397,6 +420,7 @@ var Axis;
 
 		_init();
 
+		// public methods
 		this.get$Root = _get$Root;
 		this.getPosition = _getPosition;
 		this.setXStart = _setXStart;
@@ -404,8 +428,6 @@ var Axis;
 		this.setChartWidth = _setChartWidth;
 		this.setChartHeight = _setChartHeight;
 		this.get$RenderedAxisSVG = _get$RenderedAxisSVG;
-
-
 	};
 
 	return Axis;
