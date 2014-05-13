@@ -25,27 +25,47 @@ svg {
 			stroke: rgba(0,0,256,.8);
 		}
 		.series1-fill {
-			fill: rgba(0,0,256,.15);
+			fill: rgba(0,0,256,.05);
 		}
 		.series2 {
 			stroke: rgba(0,256,0,.8);
 		}
 		.series2-fill {
-			fill: rgba(0,256,0,.15);
+			fill: rgba(0,256,0,.35);
 		}
 		.series3 {
 			stroke: rgba(256,50,0,.8);
 		}
 		.series3-fill {
-			fill: rgba(256,50,0,.15);
+			fill: rgba(256,50,0,.35);
 		}
 	}
 
 	.axis {
+		&.series1 {
+			.axis-labels {
+				path {
+					stroke: rgba(0,0,256,.8);
+				}
+				text {
+					fill: rgba(0,0,256,.8);
+				}
+			}
+		}
+		&.series2 {
+			.axis-labels {
+				stroke: rgba(0,256,0,.8);
+				text {
+					fill: rgba(0,256,0,.8);
+				}
+			}
+		}
+		/*
 		text {
 			fill: #aaa;
 			font-size: 12px;
 		}
+		*/
 	}
 }
 /*
@@ -76,35 +96,42 @@ svg {
 			path:first-of-type {
 				stroke: none;
 			}
-
+			&.bar {
+				rect {
+					stroke-width: 0px;
+					stroke: transparent;
+					fill: url(#MyGradient);
+				}
+			}
+			&.line {
+				path {
+					stroke-width: 1px;
+					&.warning {
+						stroke: red;
+					}
+					&.cool {
+						stroke: green;
+					}
+				}
+				path[class*="-fill"] {
+					stroke: none;
+					pointer-events:none;
+				}
+			}
 		}
+
 		g[class*="-circle"] {
 			stroke: rgba(0,0,0,.75);
 			stroke-width: 1px;
 			fill: transparent;
 			transition: all .5s;
 			z-index: 1000;
+			cursor: pointer;
 			&:hover {
 				stroke-width: 4px;
 			}
 		}
-		path[class*="-fill"] {
-			stroke: none;
-			pointer-events:none;
-		}
 
-		path {
-			//stroke: #ccc;
-			stroke-width: 1px;
-			//fill: transparent;
-
-			&.warning {
-				//stroke: red;
-			}
-			&.cool {
-				//stroke: green;
-			}
-		}
 	}
 
 	.axis {

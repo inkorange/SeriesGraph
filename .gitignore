@@ -128,3 +128,10 @@ node_modules/connect/node_modules/csurf/node_modules/uid2/package.json
 node_modules/connect/node_modules/csurf/package.json
 node_modules/connect/node_modules/debug/Readme.md
 node_modules/connect/node_modules/debug/debug.js
+.idea/encodings.xml
+.idea/graph.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/scope_settings.xml
+.idea/vcs.xml
+.idea/workspace.xml

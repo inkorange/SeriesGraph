@@ -17,23 +17,40 @@ svg .series .series1 {
   stroke: rgba(0, 0, 256, 0.8);
 }
 svg .series .series1-fill {
-  fill: rgba(0, 0, 256, 0.15);
+  fill: rgba(0, 0, 256, 0.05);
 }
 svg .series .series2 {
   stroke: rgba(0, 256, 0, 0.8);
 }
 svg .series .series2-fill {
-  fill: rgba(0, 256, 0, 0.15);
+  fill: rgba(0, 256, 0, 0.35);
 }
 svg .series .series3 {
   stroke: rgba(256, 50, 0, 0.8);
 }
 svg .series .series3-fill {
-  fill: rgba(256, 50, 0, 0.15);
+  fill: rgba(256, 50, 0, 0.35);
 }
-svg .axis text {
-  fill: #aaa;
-  font-size: 12px;
+svg .axis {
+  /*
+		text {
+			fill: #aaa;
+			font-size: 12px;
+		}
+		*/
+
+}
+svg .axis.series1 .axis-labels path {
+  stroke: rgba(0, 0, 256, 0.8);
+}
+svg .axis.series1 .axis-labels text {
+  fill: rgba(0, 0, 256, 0.8);
+}
+svg .axis.series2 .axis-labels {
+  stroke: rgba(0, 256, 0, 0.8);
+}
+svg .axis.series2 .axis-labels text {
+  fill: rgba(0, 256, 0, 0.8);
 }
 /*
 font-family
@@ -58,22 +75,34 @@ svg .chart-axis-line {
 svg .series .series-group path:first-of-type {
   stroke: none;
 }
+svg .series .series-group.bar rect {
+  stroke-width: 0px;
+  stroke: transparent;
+  fill: url(#MyGradient);
+}
+svg .series .series-group.line path {
+  stroke-width: 1px;
+}
+svg .series .series-group.line path.warning {
+  stroke: red;
+}
+svg .series .series-group.line path.cool {
+  stroke: green;
+}
+svg .series .series-group.line path[class*="-fill"] {
+  stroke: none;
+  pointer-events: none;
+}
 svg .series g[class*="-circle"] {
   stroke: rgba(0, 0, 0, 0.75);
   stroke-width: 1px;
   fill: transparent;
   transition: all .5s;
   z-index: 1000;
+  cursor: pointer;
 }
 svg .series g[class*="-circle"]:hover {
   stroke-width: 4px;
-}
-svg .series path[class*="-fill"] {
-  stroke: none;
-  pointer-events: none;
-}
-svg .series path {
-  stroke-width: 1px;
 }
 svg .axis path {
   stroke: rgba(0, 0, 0, 0.5);

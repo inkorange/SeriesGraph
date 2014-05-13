@@ -19,7 +19,7 @@ var Axis;
 
 		var $root = $('<svg></svg>'); //$('<svg class="chart" version="1.1" preserveAspectRatio="xMinYMin meet"></svg>');
 		var $chartArea = $('<g class="series"></g>');
-
+		var _axisArray = [];
 		var _width = 100;
 		var _height = 100;
 		var _chartHeight = _height;
@@ -43,18 +43,47 @@ var Axis;
 			_chartWidth = _width - _config.labelSpacing.left - _config.labelSpacing.right;
 
 
-			console.log(_config.labelSpacing, _width, _height, _chartWidth, _chartHeight);
+			//console.log(_config.labelSpacing, _width, _height, _chartWidth, _chartHeight);
 
 
 
 		};
 
-		var _renderSeriesOnChart = function(series) {
+		var _renderBarChartSeries = function(series) {
+			var seriesData = series.getData();
+			var pos = 1;
+			var $seriesGroup = $('<g class="series-group bar '+series.getClassName()+'"></g>');
+			var axis = series.getAxis();
+			var yTop = series.getUpperLimit();
+			var yBottom = 0;
+			var yRatio = _chartHeight/(yTop - yBottom); // 270/20
+			var spacing = 4;
+			var y = _chartHeight;
+			var x = spacing/2;
+
+
+			var barwidth = _chartWidth / (seriesData.length);
+
+			fillPathDirective = "M" + x + " " + y + ", L";
+
+			seriesData.forEach(function(data) {
+				y = _chartHeight - (yRatio * data.value);
+				var $bar = $('<rect x="'+ x + '" y="'+ y +'" width="'+ (barwidth - spacing) +'" height="'+ (_chartHeight - y - 1) +'" />');
+				x = x + barwidth;
+				$seriesGroup.append($bar);
+				pos++;
+			});
+			// lets close it out
+			_renderAxisOnChart(axis);
+			$chartArea.append($seriesGroup);
+		};
+
+		var _renderLineChartSeries = function(series) {
 			var seriesData = series.getData();
 			var pos = 1;
 			var pathDirective = "";
 			var fillPathDirective = "";
-			var $seriesGroup = $('<g class="series-group '+series.getClassName()+'"></g>');
+			var $seriesGroup = $('<g class="series-group line '+series.getClassName()+'"></g>');
 			var $seriesCircleGroup = $('<g class="'+series.getClassName()+'-circle"></g>');
 			var $fillPath = $('<path class="'+series.getClassName()+'-fill"></path>');
 			var axis = series.getAxis();
@@ -62,8 +91,7 @@ var Axis;
 			var yTop = series.getUpperLimit(); // 30; // TODO: needs to be calculated
 			var yBottom = 0; //series.getLowerLimit(); //0;
 			var yRatio = _chartHeight/(yTop - yBottom); // 270/20
-
-			console.log("----- ", yRatio, _chartHeight, yTop, yBottom);
+			//console.log("----- ", yRatio, _chartHeight, yTop, yBottom);
 
 			var xLength = seriesData.length;
 			var xRatio = _chartWidth/(xLength - 1);
@@ -72,8 +100,6 @@ var Axis;
 			var x = 0;
 
 			fillPathDirective = "M" + x + " " + y + ", L";
-
-			_renderAxisOnChart(axis);
 
 			seriesData.forEach(function(data) {
 				var starty = y;
@@ -122,6 +148,7 @@ var Axis;
 			// lets close it out
 			fillPathDirective += x + " " + _chartHeight  + " Z";
 			$fillPath.attr('d', fillPathDirective);
+			_renderAxisOnChart(axis);
 
 			$chartArea.append($fillPath);
 			$chartArea.append($seriesGroup);
@@ -129,21 +156,39 @@ var Axis;
 		};
 
 		var _renderAxisOnChart = function(axis) {
-			var position = axis.getPosition();
-			axis.setXStart(_config.labelSpacing.left);
-			axis.setYStart(_config.labelSpacing.top);
-			axis.setChartWidth(_chartWidth);
-			axis.setChartHeight(_chartHeight);
-			if(!$root.find('.axis').length) {
-				$root.prepend(axis.getRenderedAxisSVG());
+			if(axis) {
+				var position = axis.getPosition();
+				axis.setXStart(_config.labelSpacing.left);
+				axis.setYStart(_config.labelSpacing.top);
+				axis.setChartWidth(_chartWidth);
+				axis.setChartHeight(_chartHeight);
+				var $axisDOM = axis.get$RenderedAxisSVG();
+				console.log("position: ", position, alreadyPlottedAxisPosition('left'));
+				if(position === 'left' && alreadyPlottedAxisPosition('left')) {
+					console.log('we got one!');
+					$axisDOM.find('.axis-labels').attr('transform', 'translate(-50,0)');
+				}
+				$root.prepend($axisDOM);
+
+				_axisArray.push(axis); // adding it to the internal Chart Axis array
+
 			}
 		};
 
+		var alreadyPlottedAxisPosition = function(pos) {
+			var hasIt = false;
+			_axisArray.forEach(function(ax) {
+				if(ax.getPosition() === pos) {
+					hasIt = true;
+				}
+			});
+			return hasIt;
+		};
 		var _rePaint = function() {
 			_config.$container.find('.chart').empty();
 			$root.empty();
 			$chartArea.empty();
-
+			_axisArray = [];
 			_calcCurrentSizing();
 			_instantiateChart();
 			_config.$container.find('.chart').html(_get$Root);
@@ -152,7 +197,15 @@ var Axis;
 		var _instantiateChart = function() {
 			//$root.attr('viewBox', '0 0 100 100'); // this will make percentages easier
 			$chartArea.attr('transform', 'translate('+_config.labelSpacing.left+','+_config.labelSpacing.top+')');
-			_config.series.forEach(_renderSeriesOnChart);
+
+			_config.series.forEach(function(series) {
+				if(series.getType() === 'line') {
+					_renderLineChartSeries(series);
+				}
+				if(series.getType() === 'bar') {
+					_renderBarChartSeries(series);
+				}
+			});
 
 			$root.append($chartArea);
 
@@ -186,16 +239,17 @@ var Axis;
 		var _config = {
 			data : [],
 			unique : false,
-			className : 'series'
+			className : 'series',
+			type: 'line'
 		};
-		var axis;
+		var axis = new Axis;
 		var _rawValues = [];
 		var upperLimit;
 		var lowerLimit;
-		var _this = this;
 
 		var _init = function() {
 			$.extend(_config, config);
+			console.log('instantiating SERIES ', _config);
 			for (var i=0; i < _config.data.length; i++) {
 				_rawValues.push(_config.data[i].value);
 			}
@@ -204,10 +258,10 @@ var Axis;
 			var seriesConfig = {
 				data: _config.data,
 				upperLimit: upperLimit,
-				lowerLimit: lowerLimit
+				lowerLimit: lowerLimit,
+				className: _config.className
 			}
-			var axisConfig = $.extend(_config.axis, seriesConfig);
-			axis = new Axis(axisConfig);
+			axis = new Axis($.extend(_config.axis, seriesConfig));
 		};
 
 		var _getData = function() {
@@ -215,6 +269,9 @@ var Axis;
 		};
 		var _getClassName = function() {
 			return _config.className;
+		};
+		var _getType = function() {
+			return _config.type;
 		};
 		var _getAxis = function() {
 			return axis;
@@ -227,6 +284,7 @@ var Axis;
 		};
 		_init();
 
+		this.getType = _getType;
 		this.getData = _getData;
 		this.getClassName = _getClassName;
 		this.getAxis = _getAxis;
@@ -245,7 +303,8 @@ var Axis;
 (function($) {
 	Axis = function(config) {
 
-		var $root = $('<g class="axis"></g>');
+		var $root =   $('<g class="axis"></g>');
+		var $labels = $('<g class="axis-labels"></g>');
 
 		var _config = {
 			position: 'left',
@@ -274,8 +333,9 @@ var Axis;
 			if(_config.end && typeof _config.end === 'function') {
 				_endValue = _config.end(upper);
 			}
-
-			console.log(upper, "start: " + _startValue, "end: " + _endValue);
+			$root.addClass(_config.className);
+			console.log('instantiating AXIS', _config);
+			//console.log(upper, "start: " + _startValue, "end: " + _endValue);
 		};
 
 		var _get$Root = function() {
@@ -302,9 +362,9 @@ var Axis;
 			_chartHeight = h;
 		};
 
-		var _getRenderedAxisSVG = function() {
+		var _get$RenderedAxisSVG = function() {
 			$root.empty();
-			var tick_length = 10;
+			var tick_length = 8;
 			var startValue = _startValue;
 			var tickIncrement = (_endValue - _startValue) / _config.line_count;
 			console.log("axis _chartHeight: " , _chartHeight);
@@ -321,12 +381,18 @@ var Axis;
 
 			 */
 			for (var y = _chartHeight + _YStart; y >= 0 + _YStart; y = y - _chartHeight/_config.line_count) {
-				var line = $('<path d="M ' + (_XStart - tick_length) + ' ' + y + ' L ' + (_chartWidth + _XStart) + ' ' + y + '"></path>');
-				var label = $('<text x="'+(_XStart - tick_length - 2)+'" y="' + (y + 5) + '" text-anchor="end">' + startValue + '</text>');
-				$root.prepend(line).prepend(label);
+				var line = $('<path d="M ' + _XStart + ' ' + y + ' L ' + (_chartWidth + _XStart) + ' ' + y + '"></path>');
+
+				var tickline = $('<path d="M ' + (_XStart - tick_length) + ' ' + y + ' L ' + _XStart + ' ' + y + '"></path>');
+				var label = $('<text x="'+ ( _XStart - 10 ) + '" y="' + (y + 5) + '" text-anchor="end">' + startValue + '</text>');
+
+				// _XStart - tick_length - 2
+				$root.prepend(line);
+				$labels.prepend(label).prepend(tickline);
 				startValue = startValue + Number(tickIncrement);
 				console.log(startValue, tickIncrement);
 			}
+			$root.append($labels);
 			return $root;
 		};
 
@@ -338,7 +404,7 @@ var Axis;
 		this.setYStart = _setYStart;
 		this.setChartWidth = _setChartWidth;
 		this.setChartHeight = _setChartHeight;
-		this.getRenderedAxisSVG = _getRenderedAxisSVG;
+		this.get$RenderedAxisSVG = _get$RenderedAxisSVG;
 
 
 	};
