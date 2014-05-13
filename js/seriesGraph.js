@@ -1,9 +1,9 @@
 var Series;
-var Chart;
+var Graph;
 var Axis;
 
 (function($) {
-	Chart = function(config) {
+	Graph = function(config) {
 
 		var _config = {
 			series : [], // he will just have one lazy move
@@ -14,7 +14,8 @@ var Axis;
 				right: 0,
 				bottom: 0,
 				left: 0
-			}
+			},
+			rePaintOnResize: false
 		};
 
 		var $root = $('<svg></svg>'); //$('<svg class="chart" version="1.1" preserveAspectRatio="xMinYMin meet"></svg>');
@@ -27,26 +28,20 @@ var Axis;
 
 
 		var _init = function() {
-			console.log("charts's got a heartbeat");
 			$.extend(_config, config);
-
 			_calcCurrentSizing();
 			_instantiateChart();
+			if(_config.rePaintOnResize) {
+				$(window).on('resize', _rePaint());
+			}
 		};
 
 		var _calcCurrentSizing = function () {
 			_width = _config.$container.width();
 			_height = _config.$container.height();
-
 			// modified charting area sizes after margins are considered
 			_chartHeight = _height - _config.labelSpacing.top - _config.labelSpacing.bottom;
 			_chartWidth = _width - _config.labelSpacing.left - _config.labelSpacing.right;
-
-
-			//console.log(_config.labelSpacing, _width, _height, _chartWidth, _chartHeight);
-
-
-
 		};
 
 		var _renderBarChartSeries = function(series) {
@@ -60,8 +55,6 @@ var Axis;
 			var spacing = 4;
 			var y = _chartHeight;
 			var x = spacing/2;
-
-
 			var barwidth = _chartWidth / (seriesData.length);
 
 			fillPathDirective = "M" + x + " " + y + ", L";
@@ -163,15 +156,11 @@ var Axis;
 				axis.setChartWidth(_chartWidth);
 				axis.setChartHeight(_chartHeight);
 				var $axisDOM = axis.get$RenderedAxisSVG();
-				console.log("position: ", position, alreadyPlottedAxisPosition('left'));
 				if(position === 'left' && alreadyPlottedAxisPosition('left')) {
-					console.log('we got one!');
 					$axisDOM.find('.axis-labels').attr('transform', 'translate(-50,0)');
 				}
 				$root.prepend($axisDOM);
-
 				_axisArray.push(axis); // adding it to the internal Chart Axis array
-
 			}
 		};
 
@@ -226,7 +215,7 @@ var Axis;
 
 	};
 
-	return Chart;
+	return Graph;
 
 })(jQuery);
 
@@ -249,7 +238,7 @@ var Axis;
 
 		var _init = function() {
 			$.extend(_config, config);
-			console.log('instantiating SERIES ', _config);
+			//console.log('instantiating SERIES ', _config);
 			for (var i=0; i < _config.data.length; i++) {
 				_rawValues.push(_config.data[i].value);
 			}
@@ -334,8 +323,7 @@ var Axis;
 				_endValue = _config.end(upper);
 			}
 			$root.addClass(_config.className);
-			console.log('instantiating AXIS', _config);
-			//console.log(upper, "start: " + _startValue, "end: " + _endValue);
+			//console.log('instantiating AXIS', _config);
 		};
 
 		var _get$Root = function() {
@@ -367,19 +355,6 @@ var Axis;
 			var tick_length = 8;
 			var startValue = _startValue;
 			var tickIncrement = (_endValue - _startValue) / _config.line_count;
-			console.log("axis _chartHeight: " , _chartHeight);
-
-			/*
-
-				starts at 10
-				ends at 10px + height : 280
-
-				space of 270 which is a ratio of 270/(highest (25)-lowest (4))) : 270/21 :  12.85.
-
-				every plot should be 280 - ( 12.85 *
-
-
-			 */
 			for (var y = _chartHeight + _YStart; y >= 0 + _YStart; y = y - _chartHeight/_config.line_count) {
 				var line = $('<path d="M ' + _XStart + ' ' + y + ' L ' + (_chartWidth + _XStart) + ' ' + y + '"></path>');
 
@@ -390,7 +365,7 @@ var Axis;
 				$root.prepend(line);
 				$labels.prepend(label).prepend(tickline);
 				startValue = startValue + Number(tickIncrement);
-				console.log(startValue, tickIncrement);
+				//console.log(startValue, tickIncrement);
 			}
 			$root.append($labels);
 			return $root;

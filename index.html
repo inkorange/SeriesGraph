@@ -14,34 +14,17 @@
 			<!-- because of the way jQuery appends SVG objects to the DOM, fopr this to render, it needs to have an idle svg container on load.
 			this cannot be programattically added. -->
 			<svg class="chart" version="1.1" ></svg>
-
-			<!--
-				TODO: modularize the use of gradients/patterns so that these don't muck up the HTML. This can even be abstracted out into it's own page template of JS file.
-				To currently utilize the pattern definitions in SVG renderings, they need to be defined within the <svg> tag.
-			-->
-			<svg>
-				<defs>
-					<pattern id="MyGradient" patternUnits="userSpaceOnUse" x="0" y="0" width="15" height="15" fill="rgba(0,0,0,.5)">
-						<!-- Create path for individual piece of pattern. -->
-						<rect x=0 y=0 width=15 height=15 fill="rgba(0,150,0,.8)" />
-						<g transform="rotate(45 0 0)">
-							<rect x=0 y=0 width=15 height=15 />
-						</g>
-					</pattern>
-				</defs>
-			</svg>
 		</section>
 
 
 
-		<script src="js/jquery-1.10.2.min.js"></script>
-		<script src="js/chart.js"></script>
+		<script src="js/jquery-1.10.2.min.js"></script> <!-- jQuery dependency -->
+		<script src="js/seriesGraph.js"></script> <!-- seriesGraph dependency -->
 		<script>
 			/*
 				Dummy data which will eventually reflect Rapid Report objects.
 				The Series class currently expects the data to have a key and value params
 			*/
-
 			var dataSet = [
 				{
 					key: '2014-04-29',
@@ -271,7 +254,8 @@
 			/*
 				Series
 
-
+				The Series object defines the data set and the axis that will represent it once plotted to the graph.
+				It also allows you to configure the type of graph, and classes for further styling.
 
 			 	data: The series needs the dataSet defined, there is 1:1 relationship of data to series.
 				type: The Series object defines the type of chart that will be rendered (line | bar)
@@ -283,7 +267,7 @@
 					line_count: the number of ticks that will display on the chart.
 					start: a Function that will accept the highest data value and transform it
 			 		end: a Function that will accept the lowest data value and transform it
-				**eventually, if no axis config is passed through, an axis wont render at all, right now that doesnt work.
+				TODO: Eventually, if no axis config is passed through, an axis wont render at all, right now that doesnt work.
 			 */
 			var series = new Series({
 				data: dataSet,
@@ -319,10 +303,16 @@
 
 
 			/*
-				Chart
+				Graph
 
+				Graph ingests a collection of Series objects, each to be rendered on the graph composition.
+
+				series: Array of Series objects, the order of this array actually reflects the layering priority of the line or bar graphs
+				$container: jQuery object that represents the svg container. This allows for better page responsiveness, as the sibling svg object will respond to it's size.
+				labelSpacing: Properties top, right, bottom, and left which represent the margins given to the graph, mainly room for axis and titles.
+				TODO: Would be nice to have the needed space auto calculated.
 			 */
-			var chart = new Chart({
+			var graph = new Graph({
 				series : [series, series2], //, series3],
 				$container : $chartHolder,
 				labelSpacing : {
@@ -330,15 +320,30 @@
 					right: 50,
 					bottom: 20,
 					left: 100
-				}
+				},
+				rePaintOnResize: true
 			});
 
-			$(window).on('resize', chart.rePaint);
-			var $def = $('<defs><linearGradient id="MyGradient"><stop offset="5%" stop-color="#F60" /><stop offset="95%" stop-color="#FF6" /></linearGradient></defs>');
-			$svg.html(chart.get$Root()).prepend($def);
-
-			//$chartHolder.append(chart.get$Root());
+			// Adding the Jquery Graph object to the svg container
+			$svg.html(graph.get$Root());
 		</script>
+
+
+		<!--
+			TODO: modularize the use of gradients/patterns so that these don't muck up the HTML. This can even be abstracted out into it's own page template of JS file.
+			To currently utilize the pattern definitions in SVG renderings, they need to be defined within the <svg> tag.
+		-->
+		<svg>
+			<defs>
+				<pattern id="MyGradient" patternUnits="userSpaceOnUse" x="0" y="0" width="15" height="15" fill="rgba(0,0,0,.5)">
+					<!-- Create path for individual piece of pattern. -->
+					<rect x=0 y=0 width=15 height=15 fill="rgba(0,150,0,.8)" />
+					<g transform="rotate(45 0 0)">
+						<rect x=0 y=0 width=15 height=15 />
+					</g>
+				</pattern>
+			</defs>
+		</svg>
 
 	</body>
 </html>

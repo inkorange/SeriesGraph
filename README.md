@@ -3,11 +3,15 @@ SeriesGraph
 
 SVG-based Graphing Library
 
+Dependencies
+
+    <script src="js/jquery-1.10.2.min.js"></script> <!-- jQuery dependency -->
+    <script src="js/seriesGraph.js"></script> <!-- seriesGraph dependency -->
+
 Use with a idle svg DOM container...
 
     <section class="chart-holder">
-        <svg class="chart" version="1.1" >
-        </svg>
+        <svg class="chart" version="1.1" ></svg>
     </section>
 
 The data is constructed as an array:
@@ -33,7 +37,6 @@ The data is constructed as an array:
         ];
     </script>
 
-
 Configure the Graph:
 
     var $chartHolder = $('.chart-holder');
@@ -57,19 +60,17 @@ Configure the Graph:
         }
     });
 
-        var chart = new Chart({
+        var graph = new Graph({
         series : [series], // can take an array of series to overlay them
-        $container : $('.chart-holder'),
+        $container : $chartHolder, // for responsive considerations
         labelSpacing : {
             top: 10,
             right: 50,
             bottom: 20,
             left: 100
-        }
+        },
+        rePaintOnResize: true
     });
 
-    // redraws the SVG chart on window resize
-    $(window).on('resize', chart.rePaint);
-
     // draws the chart to the base container
-    $svg.html(chart.get$Root());
+    $svg.html(graph.get$Root());
